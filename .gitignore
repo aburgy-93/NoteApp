@@ -1,0 +1,42 @@
+node_modules
+
+# .NET build folders
+bin/
+obj/
+
+# .NET user-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Visual Studio config folders
+.vs/
+.vscode/
+.idea/
+
+# Angular and Node.js
+node_modules/
+dist/
+
+# Angular lock files (if not committed)
+yarn.lock
+package-lock.json
+
+# Log files
+*.log
+
+# Sensitive files
+appsettings.json
+appsettings.*.json
+
+# Other temporary files
+*.swp
+*.swo
+.DS_Store
+
+# Publish output
+publish/
+
+# Test results
+TestResults/

@@ -1,0 +1,34 @@
+<form
+  #form="ngForm"
+  (submit)="OnLogin(form)"
+  [class.submitted]="service.formSubmitted"
+  novalidate
+  autocomplete="off"
+>
+  <div class="mb-3">
+    <label>Username</label>
+    <input
+      class="form-control form-congrol-lg"
+      #username="ngModel"
+      name="username"
+      placeholder="Your Username"
+      [(ngModel)]="service.formData.username"
+      required
+    />
+  </div>
+  <div class="mb-3">
+    <label>Password</label>
+    <input
+      class="form-control form-congrol-lg"
+      #password="ngModel"
+      name="password"
+      type="password"
+      placeholder="Your Password"
+      [(ngModel)]="service.formData.password"
+      required
+    />
+  </div>
+  <div class="d-grid">
+    <button class="btn btn-lg btn-success" type="submit">Login</button>
+  </div>
+</form>
