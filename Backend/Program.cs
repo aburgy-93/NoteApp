@@ -69,7 +69,9 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddDbContext<NoteDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DevConnection")));
+
 builder.Services.AddScoped<PasswordService>();
+builder.Services.AddScoped<AuthService>();
 
 var app = builder.Build();
 

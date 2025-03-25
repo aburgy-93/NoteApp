@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 using Backend.DTOs;
 using Backend.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Backend.Controllers
 {
@@ -18,10 +20,13 @@ namespace Backend.Controllers
         private readonly NoteDbContext _context;
         private readonly PasswordService _passwordService;
 
-        public UserController(NoteDbContext context, PasswordService passwordService)
+        private readonly AuthService _authService;
+
+        public UserController(NoteDbContext context, PasswordService passwordService, AuthService authService)
         {
             _context = context;
             _passwordService = passwordService;
+            _authService = authService;
         }
 
         // GET: api/User
@@ -102,8 +107,27 @@ namespace Backend.Controllers
            return CreatedAtAction(nameof(GetUser), new {id = user.UserId}, user);
         }
 
-        // [HttpPost("login")]
-        // public async Task<ActionResult<User>> LoginUser() {}
+        [HttpPost("login")]
+        public async Task<ActionResult<User>> LoginUser([FromBody] LoginRequestDto loginRequestDto) 
+        {
+            // Find the user in the database 
+            var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == loginRequestDto.Username);
+            if (user == null)
+            {
+                return Unauthorized("Invalid username or password");
+            }
+
+            // Verify the password
+            bool isPasswordValid = _passwordService.VerifyPassword(loginRequestDto.Password, user.PasswordHash);
+            if(!isPasswordValid)
+            {
+                 return Unauthorized("Invalid username or password.");
+            }
+
+            // Generate JWT Token
+            string token = _authService.GenerateJwtToken(user.Username);
+            return Ok(new {Token = token});
+        }
 
         // DELETE: api/User/5
         [HttpDelete("{id}")]
