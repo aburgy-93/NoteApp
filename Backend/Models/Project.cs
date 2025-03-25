@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Backend.Models
+
 {
     public class Project
     {
@@ -9,8 +11,10 @@ namespace Backend.Models
         public int ProjectId {get; set;}
 
         [Column(TypeName ="nvarchar(25)")]
+        [Required]
         public required string ProjectName {get; set;}
-
-        // TODO: Array of notes
+        
+        [JsonIgnore]
+        public ICollection<Note> Notes {get; set;} = [];
     }
 }

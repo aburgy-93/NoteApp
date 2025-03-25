@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Backend.Models
+
 {
     public class Note
     {
@@ -18,9 +16,10 @@ namespace Backend.Models
         [Column(TypeName ="nvarchar(255)")]
         public string? NoteText {get; set;} 
 
-        // TODO: ProjectId
+        public int ProjectId {get; set;}
+        public Project? Project {get; set;}
 
-        // TODO: Attribute Array
-
+        [JsonIgnore]
+        public ICollection<NoteAttributeJoin> NoteAttributes { get; set; } = new List<NoteAttributeJoin>();
     }
 }
