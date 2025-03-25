@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Backend.Models
 
@@ -10,6 +11,7 @@ namespace Backend.Models
 
         public required string AttributeName {get; set;}
 
+        [JsonIgnore]
          public ICollection<NoteAttributeJoin>? NoteAttributes { get; set; } = new List<NoteAttributeJoin>();
     }
 }

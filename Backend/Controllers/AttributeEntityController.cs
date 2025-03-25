@@ -7,7 +7,7 @@ namespace Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class AttributeEntityController : ControllerBase
     {
         private readonly NoteDbContext _context;
