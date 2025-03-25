@@ -13,7 +13,7 @@ namespace Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class NotesController : ControllerBase
     {
         private readonly NoteDbContext _context;
@@ -78,11 +78,54 @@ namespace Backend.Controllers
 
         // POST: api/Notes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Note>> PostNote(Note note)
+      [HttpPost]
+        public async Task<ActionResult<Note>> PostNote(NoteDto noteDto)
         {
+            if (noteDto == null)
+            {
+                return BadRequest("Invalid note data.");
+            }
+
+            // Use DTO to create new note
+            var note = new Note 
+            {
+                NoteText = noteDto.NoteText,
+                CreatedAt = DateTime.UtcNow,
+                ProjectId = noteDto.ProjectId == 0 ? null : noteDto.ProjectId,
+                NoteAttributes = new List<NoteAttributeJoin>()
+            };
+
+            // Add the note to the context and save it to get the note's generated Id
             _context.Notes.Add(note);
             await _context.SaveChangesAsync();
+
+            // Now create the NoteAttributeJoins for each attributeId
+            if (noteDto.NoteAttributes != null)
+            {
+                // Remove any invalid attributeId (0 is invalid)
+                noteDto.NoteAttributes = noteDto.NoteAttributes.Where(id => id != 0).ToList();
+                
+                foreach (var attributeId in noteDto.NoteAttributes)
+                {
+                    // Check if the Attribute with this ID exists in the DB
+                    var attribute = await _context.Attributes.FindAsync(attributeId);
+                    if(attribute == null) 
+                    {
+                        return BadRequest($"Attribute with ID {attributeId} does not exist.");
+                    }
+
+                    // If the attribute exists, create the NoteAttributeJoin
+                    var noteAttributeJoin = new NoteAttributeJoin
+                    {
+                        NoteId = note.NoteId,
+                        AttributeId = attributeId
+                    };
+
+                    _context.NoteAttributes.Add(noteAttributeJoin);
+                }
+
+                await _context.SaveChangesAsync();
+            }
 
             return CreatedAtAction("GetNote", new { id = note.NoteId }, note);
         }

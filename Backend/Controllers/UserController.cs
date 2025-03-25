@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 using Backend.DTOs;
 using Backend.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 
 namespace Backend.Controllers
 {

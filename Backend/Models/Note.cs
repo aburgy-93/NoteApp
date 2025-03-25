@@ -16,10 +16,10 @@ namespace Backend.Models
         [Column(TypeName ="nvarchar(255)")]
         public string? NoteText {get; set;} 
 
-        public int ProjectId {get; set;}
+        public int? ProjectId {get; set;}
         public Project? Project {get; set;}
 
         [JsonIgnore]
-        public ICollection<NoteAttributeJoin> NoteAttributes { get; set; } = new List<NoteAttributeJoin>();
+        public ICollection<NoteAttributeJoin>? NoteAttributes { get; set; } = new List<NoteAttributeJoin>();
     }
 }

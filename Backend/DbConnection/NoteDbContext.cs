@@ -40,7 +40,7 @@ namespace Backend.Models
                 .HasOne(note => note.Project)
                 .WithMany(project => project.Notes)
                 .HasForeignKey(note => note.ProjectId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.SetNull);
             
             // Many to Many Relationship (Notes --> Attributes)
             // Composite key
@@ -50,7 +50,8 @@ namespace Backend.Models
             modelBuilder.Entity<NoteAttributeJoin>()
                 .HasOne(noteAttr => noteAttr.Note)
                 .WithMany(note => note.NoteAttributes)
-                .HasForeignKey(noteAttr => noteAttr.NoteId);
+                .HasForeignKey(noteAttr => noteAttr.NoteId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<NoteAttributeJoin>()
                 .HasOne(noteAttr => noteAttr.Attribute)

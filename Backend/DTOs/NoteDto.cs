@@ -6,7 +6,7 @@ namespace Backend.DTOs
         public int NoteId {get; set;}
         public DateTime CreatedAt {get; set;}
         public string? NoteText {get; set;}
-
-        public List<AttributeDto>? NoteAttributes {get; set;}
+        public int? ProjectId {get; set;}
+        public List<int>? NoteAttributes {get; set;}
     }
 }
