@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 using Backend.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using NuGet.Packaging;
 
 namespace Backend.Controllers
 {
@@ -72,13 +73,56 @@ namespace Backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutNote(int id, NoteUpdateDto noteUpdateDto)
         {
-            var existingNote = await _context.Notes.FindAsync(id);
+            var existingNote = await _context.Notes
+                .Include(note => note.NoteAttributes)
+                .FirstOrDefaultAsync(note => note.NoteId == id);
+
             if (existingNote == null)
             {
                 return BadRequest("Note does not exist.");
             }
 
-            existingNote.NoteText = noteUpdateDto.NoteText;
+            // Do not update NoteText if it has not changed
+            if (noteUpdateDto.NoteText != null && noteUpdateDto.NoteText != "string" 
+                && existingNote.NoteText != noteUpdateDto.NoteText)
+            {
+                existingNote.NoteText = noteUpdateDto.NoteText;
+            }
+
+            // Update ProjectId only if it has changed
+            if (noteUpdateDto.ProjectId.HasValue && noteUpdateDto.ProjectId.Value 
+                != 0 && existingNote.ProjectId != noteUpdateDto.ProjectId)
+            {
+                // Check that project exists
+                var projectExists = await _context.Projects.AnyAsync(project => project.ProjectId == noteUpdateDto.ProjectId);
+                if(!projectExists)
+                {
+                    return BadRequest("Project does not exist");
+                }
+
+                // Update ProjectId if it has changed.
+                existingNote.ProjectId = noteUpdateDto.ProjectId;
+            }
+
+
+
+            // Handle NoteAttributes only if it has changed
+            if (noteUpdateDto.NoteAttributes != null)
+            {
+                // Add new attirbutes that aren't already in the existing list
+                foreach (var attributeId in noteUpdateDto.NoteAttributes) {
+                    // Only add new attributes that are'nt already in the existing list
+                    if (!existingNote.NoteAttributes.Any(noteAttr => noteAttr.AttributeId == attributeId))
+                    {
+                        var newAttributeJoin = new NoteAttributeJoin
+                        {
+                            NoteId = existingNote.NoteId,
+                            AttributeId = attributeId
+                        };
+                        existingNote.NoteAttributes.Add(newAttributeJoin);
+                    }
+                }
+            }
 
             try
             {

@@ -7,10 +7,10 @@ Todos Attribute:
 
 Todos Notes:
     ✔ NoteController get all request test @done(25-03-27 11:09)
-    ☐ NoteController get by id request test
-    ☐ NoteController put by id request test
-    ☐ NoteController post request tests
-    ☐ NoteController delete by id request tests
+    ✔ NoteController get all request test @done(25-03-27 12:27)
+    ✔ NoteController put by id request test @done(25-03-27 12:27)
+    ✔ NoteController post request tests @done(25-03-27 12:28)
+    ✔ NoteController delete by id request tests @done(25-03-27 12:28)
     
 Todos Projects:
     ☐ ProjectController get all request test
