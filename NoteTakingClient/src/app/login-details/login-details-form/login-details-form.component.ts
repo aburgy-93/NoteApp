@@ -23,7 +23,7 @@ export class LoginDetailsFormComponent {
       this.service.postLoginUser().subscribe({
         next: (res: any) => {
           console.log(res);
-          const token = res.data[0].token;
+          const token = res.token;
           console.log(token);
           this.service.resetForm(form);
           this.toastr.success('Successfully Logged In!', 'User Login Success');
