@@ -27,7 +27,11 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
         {
-            var projects = await _context.Projects.Include(projects => projects.Notes).ToListAsync();
+            var projects = await _context.Projects
+            .Include(projects => projects.Notes)
+            .ThenInclude(note => note.NoteAttributes)
+            .ThenInclude(noteAttr => noteAttr.Attribute)
+            .ToListAsync();
 
             var projectDtos = projects.Select(project => new ProjectDto
             {
@@ -38,8 +42,9 @@ namespace Backend.Controllers
                     NoteId = note.NoteId,
                     NoteText = note.NoteText,
                     CreatedAt = note.CreatedAt,
-                    ProjectId = note.ProjectId
-                }).ToList()
+                    ProjectId = note.ProjectId,
+                    NoteAttributeNames = note.NoteAttributes.Select(attr => attr.Attribute.AttributeName).ToList(),
+                }).ToList(),
             });
 
             return Ok(projectDtos);
@@ -51,12 +56,14 @@ namespace Backend.Controllers
         public async Task<ActionResult<ProjectDto>> GetProject(int id)
         {
             var project = await _context.Projects
-                .Include(project => project.Notes) 
+                .Include(project => project.Notes)
+                .ThenInclude(note => note.NoteAttributes)
+                .ThenInclude(noteAttr => noteAttr.Attribute) 
                 .FirstOrDefaultAsync(project => project.ProjectId == id);
 
             if (project == null)
             {
-                return NotFound();
+                return NotFound("Project was deleted or does not exist.");
             }
 
             // Project to ProjectDto mapping
@@ -69,7 +76,8 @@ namespace Backend.Controllers
                     NoteId = note.NoteId,
                     NoteText = note.NoteText,
                     CreatedAt = note.CreatedAt,
-                    ProjectId = note.ProjectId
+                    ProjectId = note.ProjectId,
+                    NoteAttributeNames = note.NoteAttributes?.Select(attr => attr.Attribute.AttributeName).ToList(),
                 }).ToList()
             };
 
@@ -112,16 +120,16 @@ namespace Backend.Controllers
         // POST: api/Project
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Project>> PostProject(ProjectDto projectDto)
+        public async Task<ActionResult<Project>> PostProject(ProjectCreateDto projectCreateDto)
         {
-            if (projectDto == null)
+            if (projectCreateDto == null)
             {
                 return BadRequest("Invalid project data.");
             }
 
             var project = new Project
             {
-                ProjectName = projectDto.ProjectName,
+                ProjectName = projectCreateDto.ProjectName,
                 Notes = new List<Note>()
             };
 
@@ -132,7 +140,6 @@ namespace Backend.Controllers
             {
                 ProjectId = project.ProjectId,
                 ProjectName = project.ProjectName,
-                Notes = new List<NoteDto>()
             };
 
             return CreatedAtAction("GetProject", new { id = project.ProjectId }, projectResponse);

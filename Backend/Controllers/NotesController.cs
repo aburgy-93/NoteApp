@@ -28,7 +28,7 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Note>>> GetNotes()
         {
-            var notes = await _context.Notes.Select(note => new NoteDto {
+            var notes = await _context.Notes.Select( note => new NoteDto {
                 NoteId = note.NoteId,
                 CreatedAt = note.CreatedAt,
                 NoteText = note.NoteText,
@@ -61,8 +61,8 @@ namespace Backend.Controllers
                 ProjectId = note.ProjectId, 
                 NoteAttributeNames = note.NoteAttributes
                     .Where(na => na.Attribute != null)
-                    .Select(na => na.Attribute.AttributeName)
-                    .ToList()
+                    .Select(na => na.Attribute!.AttributeName)
+                    .ToList() ?? new List<string>()
              };
 
             return Ok(noteDto);
@@ -104,25 +104,33 @@ namespace Backend.Controllers
                 existingNote.ProjectId = noteUpdateDto.ProjectId;
             }
 
-
-
             // Handle NoteAttributes only if it has changed
             if (noteUpdateDto.NoteAttributes != null)
             {
-                // Add new attirbutes that aren't already in the existing list
-                foreach (var attributeId in noteUpdateDto.NoteAttributes) {
-                    // Only add new attributes that are'nt already in the existing list
+                // Remove invalid attribute IDs (0 is invalid)
+                var validAttributes = noteUpdateDto.NoteAttributes.Where(id => id > 0).ToList();
+
+                foreach (var attributeId in validAttributes)
+                {
+                    // Ensure the attribute exists in the database
+                    var attributeExists = await _context.Attributes.AnyAsync(attr => attr.AttributeId == attributeId);
+                    if (!attributeExists)
+                    {
+                        return BadRequest($"Attribute with ID {attributeId} does not exist.");
+                    }
+
+                    // Only add new attributes that are not already in the existing list
                     if (!existingNote.NoteAttributes.Any(noteAttr => noteAttr.AttributeId == attributeId))
                     {
-                        var newAttributeJoin = new NoteAttributeJoin
+                        existingNote.NoteAttributes.Add(new NoteAttributeJoin
                         {
                             NoteId = existingNote.NoteId,
                             AttributeId = attributeId
-                        };
-                        existingNote.NoteAttributes.Add(newAttributeJoin);
+                        });
                     }
                 }
             }
+
 
             try
             {
@@ -170,7 +178,7 @@ namespace Backend.Controllers
             if (noteCreateDto.NoteAttributes != null)
             {
                 // Remove any invalid attributeId (0 is invalid)
-                noteCreateDto.NoteAttributes = noteCreateDto.NoteAttributes.Where(id => id != 0).ToList();
+                noteCreateDto.NoteAttributes = noteCreateDto.NoteAttributes.Where(static id => id != 0).ToList();
                 
                 foreach (var attributeId in noteCreateDto.NoteAttributes)
                 {
@@ -201,7 +209,7 @@ namespace Backend.Controllers
                 note.NoteText,
                 note.ProjectId,
                 noteAttributes = note.NoteAttributes
-                    .Select(noteAttr => noteAttr.Attribute.AttributeName).ToList()
+                    .Select(static noteAttr => noteAttr.Attribute.AttributeName).ToList()
             };
 
             return CreatedAtAction("GetNote", new { id = note.NoteId }, responseNote);

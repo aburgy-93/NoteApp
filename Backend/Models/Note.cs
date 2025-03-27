@@ -19,7 +19,7 @@ namespace Backend.Models
         public int? ProjectId {get; set;}
         public Project? Project {get; set;}
 
-        // [JsonIgnore]
+        [JsonIgnore]
         public ICollection<NoteAttributeJoin>? NoteAttributes { get; set; } = new List<NoteAttributeJoin>();
     }
 }

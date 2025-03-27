@@ -71,16 +71,29 @@ namespace Backend.Controllers
             return NoContent();
         }
 
-        // TODO Test
         // POST: api/AttributeEntity
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<AttributeEntity>> PostAttributeEntity(AttributeEntity attributeEntity)
+        public async Task<ActionResult<AttributeEntity>> PostAttributeEntity(AttributeDto attributeDto)
         {
-            _context.Attributes.Add(attributeEntity);
+            if (attributeDto == null) {
+                return BadRequest("Attribute cannot be null.");
+            }
+            var newAttribute = new AttributeEntity
+            {
+                AttributeName = attributeDto.AttributeName
+            };
+
+            _context.Attributes.Add(newAttribute);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAttributeEntity", new { id = attributeEntity.AttributeId }, attributeEntity);
+            var attributeResponse = new AttributeDto 
+            {
+                AttributeId = newAttribute.AttributeId,
+                AttributeName = newAttribute.AttributeName
+            };
+
+            return CreatedAtAction("GetAttributeEntity", new { id = newAttribute.AttributeId }, attributeResponse);
         }
 
         // DELETE: api/AttributeEntity/5

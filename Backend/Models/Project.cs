@@ -14,6 +14,6 @@ namespace Backend.Models
         [Required]
         public required string ProjectName {get; set;}
         
-        public ICollection<Note>? Notes {get; set;} = new List<Note>();
+        public ICollection<Note> Notes {get; set;} = new List<Note>();
     }
 }

@@ -13,11 +13,11 @@ Todos Notes:
     ✔ NoteController delete by id request tests @done(25-03-27 12:28)
     
 Todos Projects:
-    ☐ ProjectController get all request test
-    ☐ ProjectController get by id request test
-    ☐ ProjectController put by id request test
-    ☐ ProjectController post request tests
-    ☐ ProjectController delete by id request tests
+    ✔ ProjectController get all request test @done(25-03-27 14:23)
+    ✔ ProjectController get by id request test @done(25-03-27 14:23)
+    ✔ ProjectController put by id request test @done(25-03-27 14:37)
+    ✔ ProjectController post request tests @done(25-03-27 14:37)
+    ✔ ProjectController delete by id request tests @done(25-03-27 14:37)
 
 Todos Users:
     ☐ UserController get all request test
