@@ -9,6 +9,9 @@ namespace Backend.DTOs
         public DateTime CreatedAt {get; set;}
         public string? NoteText {get; set;}
         public int? ProjectId {get; set;}
-        public List<int>? NoteAttributes {get; set;}
+
+        // Unsure if this is required, but will keep in case I may need it.
+        // public List<int>? NoteAttributes {get; set;}
+        public List<string>? NoteAttributeNames {get; set;}
     }
 }

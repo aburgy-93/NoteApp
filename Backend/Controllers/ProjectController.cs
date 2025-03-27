@@ -51,8 +51,8 @@ namespace Backend.Controllers
         public async Task<ActionResult<ProjectDto>> GetProject(int id)
         {
             var project = await _context.Projects
-                .Include(p => p.Notes) 
-                .FirstOrDefaultAsync(p => p.ProjectId == id);
+                .Include(project => project.Notes) 
+                .FirstOrDefaultAsync(project => project.ProjectId == id);
 
             if (project == null)
             {

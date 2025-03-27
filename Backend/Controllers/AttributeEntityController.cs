@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 using Microsoft.AspNetCore.Authorization;
+using Backend.DTOs;
 
 namespace Backend.Controllers
 {
@@ -41,14 +42,15 @@ namespace Backend.Controllers
         // PUT: api/AttributeEntity/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAttributeEntity(int id, AttributeEntity attributeEntity)
+        public async Task<IActionResult> PutAttributeEntity(int id, AttributeDto attributeDto)
         {
-            if (id != attributeEntity.AttributeId)
+            var existingAttribute = await _context.Attributes.FindAsync(id);
+            if (existingAttribute == null)
             {
-                return BadRequest();
+                return BadRequest("Could not find attribute.");
             }
 
-            _context.Entry(attributeEntity).State = EntityState.Modified;
+            existingAttribute.AttributeName = attributeDto.AttributeName;
 
             try
             {
@@ -69,6 +71,7 @@ namespace Backend.Controllers
             return NoContent();
         }
 
+        // TODO Test
         // POST: api/AttributeEntity
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]

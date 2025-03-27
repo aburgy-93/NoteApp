@@ -27,21 +27,44 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Note>>> GetNotes()
         {
-            return await _context.Notes.ToListAsync();
+            var notes = await _context.Notes.Select(note => new NoteDto {
+                NoteId = note.NoteId,
+                CreatedAt = note.CreatedAt,
+                NoteText = note.NoteText,
+                ProjectId = note.ProjectId,
+                NoteAttributeNames = note.NoteAttributes.Select(attr => attr.Attribute.AttributeName).ToList(),
+            }).ToListAsync();
+
+            return Ok(notes);
         }
 
         // GET: api/Notes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Note>> GetNote(int id)
         {
-            var note = await _context.Notes.FindAsync(id);
+            var note = await _context.Notes
+                .Include(note => note.Project)
+                .Include(note => note.NoteAttributes)
+                    .ThenInclude(noteAttr => noteAttr.Attribute)
+                .FirstOrDefaultAsync(note => note.NoteId == id);
 
             if (note == null)
             {
                 return NotFound();
             }
 
-            return note;
+             var noteDto = new NoteDto {
+                NoteId = note.NoteId,
+                CreatedAt = note.CreatedAt,
+                NoteText = note.NoteText,
+                ProjectId = note.ProjectId, 
+                NoteAttributeNames = note.NoteAttributes
+                    .Where(na => na.Attribute != null)
+                    .Select(na => na.Attribute.AttributeName)
+                    .ToList()
+             };
+
+            return Ok(noteDto);
         }
 
         // PUT: api/Notes/5
@@ -52,7 +75,7 @@ namespace Backend.Controllers
             var existingNote = await _context.Notes.FindAsync(id);
             if (existingNote == null)
             {
-                return BadRequest();
+                return BadRequest("Note does not exist.");
             }
 
             existingNote.NoteText = noteUpdateDto.NoteText;
@@ -79,19 +102,19 @@ namespace Backend.Controllers
         // POST: api/Notes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
       [HttpPost]
-        public async Task<ActionResult<Note>> PostNote(NoteDto noteDto)
+        public async Task<ActionResult<Note>> PostNote(NoteCreateDto noteCreateDto)
         {
-            if (noteDto == null)
+            if (noteCreateDto == null)
             {
                 return BadRequest("Invalid note data.");
             }
 
             // Use DTO to create new note
-            var note = new Note 
+            var note = new Note
             {
-                NoteText = noteDto.NoteText,
+                NoteText = noteCreateDto.NoteText,
                 CreatedAt = DateTime.UtcNow,
-                ProjectId = noteDto.ProjectId == 0 ? null : noteDto.ProjectId,
+                ProjectId = noteCreateDto.ProjectId == 0 ? null : noteCreateDto.ProjectId,
                 NoteAttributes = new List<NoteAttributeJoin>()
             };
 
@@ -100,12 +123,12 @@ namespace Backend.Controllers
             await _context.SaveChangesAsync();
 
             // Now create the NoteAttributeJoins for each attributeId
-            if (noteDto.NoteAttributes != null)
+            if (noteCreateDto.NoteAttributes != null)
             {
                 // Remove any invalid attributeId (0 is invalid)
-                noteDto.NoteAttributes = noteDto.NoteAttributes.Where(id => id != 0).ToList();
+                noteCreateDto.NoteAttributes = noteCreateDto.NoteAttributes.Where(id => id != 0).ToList();
                 
-                foreach (var attributeId in noteDto.NoteAttributes)
+                foreach (var attributeId in noteCreateDto.NoteAttributes)
                 {
                     // Check if the Attribute with this ID exists in the DB
                     var attribute = await _context.Attributes.FindAsync(attributeId);
@@ -127,7 +150,17 @@ namespace Backend.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return CreatedAtAction("GetNote", new { id = note.NoteId }, note);
+            var responseNote = new 
+            {
+                note.NoteId,
+                note.CreatedAt,
+                note.NoteText,
+                note.ProjectId,
+                noteAttributes = note.NoteAttributes
+                    .Select(noteAttr => noteAttr.Attribute.AttributeName).ToList()
+            };
+
+            return CreatedAtAction("GetNote", new { id = note.NoteId }, responseNote);
         }
 
         // DELETE: api/Notes/5
