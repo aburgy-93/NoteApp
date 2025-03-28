@@ -19,9 +19,15 @@ namespace Backend.Controllers
         }
 
         // GET: api/Project
+        /*
+            Get all projects from the database. 
+        */
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
         {
+            // Get all projects, include the notes associated with each project. 
+            // Include all of the attribute ids associated with each note via the join table. 
+            // Then include the names of the attributes via their ids. 
             var projects = await _context.Projects
             .Include(projects => projects.Notes)
             .ThenInclude(note => note.NoteAttributes)
@@ -38,7 +44,8 @@ namespace Backend.Controllers
                     NoteText = note.NoteText,
                     CreatedAt = note.CreatedAt,
                     ProjectId = note.ProjectId,
-                    NoteAttributeNames = note.NoteAttributes.Select(attr => attr.Attribute.AttributeName).ToList(),
+                    NoteAttributeNames = note.NoteAttributes
+                        .Select(attr => attr.Attribute.AttributeName).ToList(),
                 }).ToList(),
             });
 
@@ -46,10 +53,15 @@ namespace Backend.Controllers
         }
 
         // GET: api/Project/5
-        // GET: api/Project/5
+        /*
+            Get the project associated with the passed in id. 
+        */
         [HttpGet("{id}")]
         public async Task<ActionResult<ProjectDto>> GetProject(int id)
         {
+            // Get the project, include the notes associated with each project. 
+            // Include all of the attribute ids associated with each note via the join table. 
+            // Then include the names of the attributes via their ids. 
             var project = await _context.Projects
                 .Include(project => project.Notes)
                 .ThenInclude(note => note.NoteAttributes)
@@ -72,7 +84,8 @@ namespace Backend.Controllers
                     NoteText = note.NoteText,
                     CreatedAt = note.CreatedAt,
                     ProjectId = note.ProjectId,
-                    NoteAttributeNames = note.NoteAttributes?.Select(attr => attr.Attribute.AttributeName).ToList(),
+                    NoteAttributeNames = note.NoteAttributes?
+                        .Select(attr => attr.Attribute.AttributeName).ToList(),
                 }).ToList()
             };
 
@@ -81,16 +94,21 @@ namespace Backend.Controllers
 
 
         // PUT: api/Project/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /*
+           Update the project based on the id passed in. 
+        */
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProject(int id, ProjectUpdateDto projectUpdateDto)
         {
+            // Check to see that the project exists. 
             var existingProject = await _context.Projects.FindAsync(id);
             if (existingProject == null)
             {
                 return BadRequest();
             }
 
+            // Currently only able to edit the name of the project.
+            // TODO: deleteing notes functionality.
             existingProject.ProjectName = projectUpdateDto.ProjectName;
 
             try
@@ -113,24 +131,31 @@ namespace Backend.Controllers
         }
 
         // POST: api/Project
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /*
+            Create a new project. 
+        */
         [HttpPost]
         public async Task<ActionResult<Project>> PostProject(ProjectCreateDto projectCreateDto)
         {
+            // If the input fields are not filled in, do not create the project.
             if (projectCreateDto == null)
             {
                 return BadRequest("Invalid project data.");
             }
 
+            // Create a new Project object and set the name to the name from the form.
+            // Create an array to hold Note, set to empty to add notes later. 
             var project = new Project
             {
                 ProjectName = projectCreateDto.ProjectName,
                 Notes = new List<Note>()
             };
 
+            // Add the project to the DB.
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
+            // Response body after creation.
             var projectResponse = new ProjectDto
             {
                 ProjectId = project.ProjectId,
@@ -141,6 +166,9 @@ namespace Backend.Controllers
         }
 
         [HttpGet("getProjectNoteCounts")]
+        /*
+            Gets the count of notes per project. 
+        */
         public async Task<ActionResult> GetProjectNoteCounts()
         {
             // Group notes by projectId
@@ -164,6 +192,9 @@ namespace Backend.Controllers
         }
 
         [HttpGet("getAttributeCounts")]
+        /*
+            Get the count of each attribute used. 
+        */
         public async Task<ActionResult> GetAttributeCounts()
         {
             // Group the NoteAttributeJoin By AttributeId and count the occurrences
@@ -207,6 +238,11 @@ namespace Backend.Controllers
 
 
         // DELETE: api/Project/5
+        /*
+            Delete the project based on the passed in id. 
+            In the DB Context, it is set up so if a project is deleted the notes
+            associated with that project are not also deleted. 
+        */
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject(int id)
         {

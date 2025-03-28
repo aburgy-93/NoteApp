@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Models;
@@ -20,7 +15,9 @@ namespace Backend.Controllers
 
         private readonly AuthService _authService;
 
-        public UserController(NoteDbContext context, PasswordService passwordService, AuthService authService)
+        public UserController(NoteDbContext context, 
+            PasswordService passwordService, 
+            AuthService authService)
         {
             _context = context;
             _passwordService = passwordService;
@@ -28,6 +25,10 @@ namespace Backend.Controllers
         }
 
         // GET: api/User
+        /*
+            Get the users.
+            Not currently being used, but could be implemented for an Admin console.
+        */
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
@@ -35,6 +36,10 @@ namespace Backend.Controllers
         }
 
         // GET: api/User/5
+        /*
+            Get the user by id.
+            Not currently being used, but could be implemented for an Admin console.
+        */
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
@@ -49,7 +54,11 @@ namespace Backend.Controllers
         }
 
         // PUT: api/User/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /*
+            Update the user based on id.
+            Not currently being used, but could be implemented for an Admin console.
+            TODO: fix being able to update the lastLoginAt
+        */
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
@@ -80,7 +89,9 @@ namespace Backend.Controllers
         }
 
         // POST: api/User
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /*
+            Create a new user. 
+        */
         [HttpPost("register")]
         public async Task<ActionResult<User>> RegisterUser(UserRegisterDto userRegisterDto)
         {
@@ -90,7 +101,8 @@ namespace Backend.Controllers
            }
 
            // Hash the password
-           string hashedPassword = _passwordService.HashPassword(userRegisterDto.PasswordHash);
+           string hashedPassword = _passwordService
+            .HashPassword(userRegisterDto.PasswordHash);
 
            var user = new User 
            {
@@ -106,17 +118,25 @@ namespace Backend.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<User>> LoginUser([FromBody] LoginRequestDto loginRequestDto) 
+        /*
+            Log the user in by checking the username and password. 
+        */
+        public async Task<ActionResult<User>> LoginUser([FromBody] 
+            LoginRequestDto loginRequestDto) 
         {
             // Find the user in the database 
-            var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == loginRequestDto.Username);
+            var user = await _context.Users
+                .FirstOrDefaultAsync(user => user.Username == loginRequestDto.Username);
+
             if (user == null)
             {
                 return Unauthorized("Invalid username or password");
             }
 
             // Verify the password
-            bool isPasswordValid = _passwordService.VerifyPassword(loginRequestDto.Password, user.PasswordHash);
+            bool isPasswordValid = _passwordService
+                .VerifyPassword(loginRequestDto.Password, user.PasswordHash);
+
             if(!isPasswordValid)
             {
                  return Unauthorized("Invalid username or password.");
@@ -128,6 +148,10 @@ namespace Backend.Controllers
         }
 
         // DELETE: api/User/5
+        /*
+            Delete the user based on the passed in id.
+            Not currently being used, but could be implemented for an Admin console.
+        */
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {

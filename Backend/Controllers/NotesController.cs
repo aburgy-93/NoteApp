@@ -19,6 +19,9 @@ namespace Backend.Controllers
         }
 
         // GET: api/Notes
+        /*
+            Get all notes from the database. 
+        */
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Note>>> GetNotes()
         {
@@ -34,9 +37,14 @@ namespace Backend.Controllers
         }
 
         // GET: api/Notes/5
+         /*
+            Get the note that corresponds to the passed in id. 
+        */
         [HttpGet("{id}")]
         public async Task<ActionResult<Note>> GetNote(int id)
         {
+            // From the notes table return the note corresponding to the passed in id. 
+            // Include the project, attributes, and the corresponding attribute name 
             var note = await _context.Notes
                 .Include(note => note.Project)
                 .Include(note => note.NoteAttributes)
@@ -63,10 +71,13 @@ namespace Backend.Controllers
         }
 
         // PUT: api/Notes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+         /*
+            Update the note of the passed in id. 
+        */
         [HttpPut("{id}")]
         public async Task<IActionResult> PutNote(int id, NoteUpdateDto noteUpdateDto)
         {
+            // Find the existing note, include the attributes. 
             var existingNote = await _context.Notes
                 .Include(note => note.NoteAttributes)
                 .FirstOrDefaultAsync(note => note.NoteId == id);
@@ -88,7 +99,8 @@ namespace Backend.Controllers
                 != 0 && existingNote.ProjectId != noteUpdateDto.ProjectId)
             {
                 // Check that project exists
-                var projectExists = await _context.Projects.AnyAsync(project => project.ProjectId == noteUpdateDto.ProjectId);
+                var projectExists = await _context.Projects
+                    .AnyAsync(project => project.ProjectId == noteUpdateDto.ProjectId);
                 if(!projectExists)
                 {
                     return BadRequest("Project does not exist");
@@ -102,19 +114,23 @@ namespace Backend.Controllers
             if (noteUpdateDto.NoteAttributes != null)
             {
                 // Remove invalid attribute IDs (0 is invalid)
-                var validAttributes = noteUpdateDto.NoteAttributes.Where(id => id > 0).ToList();
+                var validAttributes = noteUpdateDto.NoteAttributes
+                    .Where(id => id > 0).ToList();
 
                 foreach (var attributeId in validAttributes)
                 {
                     // Ensure the attribute exists in the database
-                    var attributeExists = await _context.Attributes.AnyAsync(attr => attr.AttributeId == attributeId);
+                    var attributeExists = await _context.Attributes
+                        .AnyAsync(attr => attr.AttributeId == attributeId);
+
                     if (!attributeExists)
                     {
                         return BadRequest($"Attribute with ID {attributeId} does not exist.");
                     }
 
                     // Only add new attributes that are not already in the existing list
-                    if (!existingNote.NoteAttributes.Any(noteAttr => noteAttr.AttributeId == attributeId))
+                    if (!existingNote.NoteAttributes
+                        .Any(noteAttr => noteAttr.AttributeId == attributeId))
                     {
                         existingNote.NoteAttributes.Add(new NoteAttributeJoin
                         {
@@ -124,7 +140,6 @@ namespace Backend.Controllers
                     }
                 }
             }
-
 
             try
             {
@@ -146,7 +161,9 @@ namespace Backend.Controllers
         }
 
         // POST: api/Notes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+         /*
+            Create a new note. 
+        */
       [HttpPost]
         public async Task<ActionResult<Note>> PostNote(NoteCreateDto noteCreateDto)
         {
@@ -172,7 +189,8 @@ namespace Backend.Controllers
             if (noteCreateDto.NoteAttributes != null)
             {
                 // Remove any invalid attributeId (0 is invalid)
-                noteCreateDto.NoteAttributes = noteCreateDto.NoteAttributes.Where(static id => id != 0).ToList();
+                noteCreateDto.NoteAttributes = noteCreateDto.NoteAttributes
+                    .Where(id => id != 0).ToList();
                 
                 foreach (var attributeId in noteCreateDto.NoteAttributes)
                 {
@@ -210,6 +228,9 @@ namespace Backend.Controllers
         }
 
         // DELETE: api/Notes/5
+         /*
+           Delete the note that corresponds to the passed in id. 
+        */
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNote(int id)
         {

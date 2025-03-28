@@ -19,6 +19,9 @@ namespace Backend.Controllers
         }
 
         // GET: api/AttributeEntity
+        /*
+            Return all of the attributes in the context. 
+        */
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AttributeEntity>>> GetAttributes()
         {
@@ -26,6 +29,9 @@ namespace Backend.Controllers
         }
 
         // GET: api/AttributeEntity/5
+        /*
+            Return an attribute via an entered id. 
+        */
         [HttpGet("{id}")]
         public async Task<ActionResult<AttributeEntity>> GetAttributeEntity(int id)
         {
@@ -40,7 +46,9 @@ namespace Backend.Controllers
         }
 
         // PUT: api/AttributeEntity/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+         /*
+            Update an attribute corresponding to the entered id. 
+        */
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAttributeEntity(int id, AttributeDto attributeDto)
         {
@@ -72,7 +80,9 @@ namespace Backend.Controllers
         }
 
         // POST: api/AttributeEntity
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /*
+            Create a new attribute and add it to the database. 
+        */
         [HttpPost]
         public async Task<ActionResult<AttributeEntity>> PostAttributeEntity(AttributeDto attributeDto)
         {
@@ -97,6 +107,9 @@ namespace Backend.Controllers
         }
 
         // DELETE: api/AttributeEntity/5
+        /*
+            Delete an attribute based on the id passed in. 
+        */
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAttributeEntity(int id)
         {

@@ -20,6 +20,6 @@ namespace Backend.Models
         public Project? Project {get; set;}
 
         [JsonIgnore]
-        public ICollection<NoteAttributeJoin>? NoteAttributes { get; set; } = new List<NoteAttributeJoin>();
+        public ICollection<NoteAttributeJoin> NoteAttributes { get; set; } = new List<NoteAttributeJoin>();
     }
 }

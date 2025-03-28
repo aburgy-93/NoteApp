@@ -12,6 +12,6 @@ namespace Backend.Models
         public required string AttributeName {get; set;}
 
         [JsonIgnore]
-         public ICollection<NoteAttributeJoin>? NoteAttributes { get; set; } = new List<NoteAttributeJoin>();
+         public ICollection<NoteAttributeJoin> NoteAttributes { get; set; } = new List<NoteAttributeJoin>();
     }
 }
