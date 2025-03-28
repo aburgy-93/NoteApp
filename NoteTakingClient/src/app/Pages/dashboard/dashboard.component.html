@@ -1,1 +1,96 @@
-<p>dashboard works!</p>
+<div class="dashboard">
+  <ul class="nav">
+    <li class="nav-item">
+      <button
+        class="btn btn-lg btn-success"
+        (click)="handleAction('GetProjects')"
+      >
+        Get All Projects
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="btn btn-lg btn-success" (click)="handleAction('GetNotes')">
+        Get All Notes
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="btn btn-lg btn-success" (click)="handleAction('GetStats')">
+        Get Stats
+      </button>
+    </li>
+  </ul>
+
+  <div *ngIf="currentAction === 'GetProjects'" style="width: 18rem">
+    <div *ngIf="projects.length > 0; else noProjects">
+      <div *ngFor="let project of projects" class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ project.projectName }}</h5>
+          <li *ngFor="let note of project.notes">
+            <strong>Note Title:</strong> {{ note.noteText }}
+            <!-- Display the note text -->
+            <br />
+            <strong>Created At:</strong> {{ note.createdAt }}
+            <!-- Display creation date -->
+            <br />
+            <strong>Attributes:</strong>
+            <span *ngFor="let attribute of note.noteAttributeNames">
+              {{ attribute }}
+            </span>
+            <br /><br />
+          </li>
+        </div>
+        <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="currentAction === 'GetNotes'" style="width: 18rem">
+    <div *ngIf="notes.length > 0; else noNotes">
+      <div *ngFor="let note of notes" class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ note.noteText }}</h5>
+          <li *ngFor="let attribute of note.noteAttributeNames">
+            {{ attribute }}
+          </li>
+        </div>
+        <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- <div *ngIf="currentAction === 'GetStats'" style="width: 18rem">
+    <div *ngIf="notes.length > 0; else noStats">
+      <div *ngFor="let note of notes" class="card">
+        <div class="card-body">
+          <li *ngFor="let note of project.notes">
+            <strong>Note Text:</strong>
+            {{ note.noteText }}
+            
+            <br />
+            <strong>Created At:</strong> {{ note.createdAt }}
+           
+            <br />
+            <strong>Attributes:</strong>
+            <span *ngFor="let attribute of note.noteAttributeNames">
+              {{ attribute }}
+            </span>
+            <br /><br />
+          </li>
+        </div>
+        
+      </div>
+    </div>
+  </div> -->
+
+  <ng-template #noProjects>
+    <p>No projects available</p>
+  </ng-template>
+
+  <ng-template #noNotes>
+    <p>No notes available</p>
+  </ng-template>
+
+  <ng-template #noStats>
+    <p>No stats available</p>
+  </ng-template>
+</div>

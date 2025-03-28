@@ -27,7 +27,7 @@ import { CustomInterceptor } from './services/custom.interceptor';
     BrowserModule,
     HttpClientModule,
     FormsModule,
-    BrowserAnimationsModule, // required animations module
+    BrowserAnimationsModule,
     ToastrModule.forRoot(),
     AppRoutingModule,
     RouterModule,

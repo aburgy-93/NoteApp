@@ -21,3 +21,24 @@ form input::placeholder {
 form.submitted input.ng-invalid {
   border-color: red;
 }
+
+.dashboard {
+  margin: 20px;
+}
+
+.nav {
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+ul li {
+  margin-right: 10px;
+}
+
+.card {
+  margin-bottom: 12px;
+}
+
+.card-body li::marker {
+  content: none;
+}

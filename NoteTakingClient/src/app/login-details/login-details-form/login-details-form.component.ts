@@ -22,9 +22,7 @@ export class LoginDetailsFormComponent {
     if (form.valid) {
       this.service.postLoginUser().subscribe({
         next: (res: any) => {
-          console.log(res);
           const token = res.token;
-          console.log(token);
           this.service.resetForm(form);
           this.toastr.success('Successfully Logged In!', 'User Login Success');
           localStorage.setItem('loginToken', token);
