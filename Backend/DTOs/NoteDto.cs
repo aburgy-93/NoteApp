@@ -12,6 +12,6 @@ namespace Backend.DTOs
 
         // Unsure if this is required, but will keep in case I may need it.
         // public List<int>? NoteAttributes {get; set;}
-        public List<string>? NoteAttributeNames {get; set;}
+        public List<string>? NoteAttributeNames {get; set;} = new List<string>();
     }
 }

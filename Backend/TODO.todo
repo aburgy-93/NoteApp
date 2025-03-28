@@ -20,11 +20,11 @@ Todos Projects:
     ✔ ProjectController delete by id request tests @done(25-03-27 14:37)
 
 Todos Users:
-    ☐ UserController get all request test
-    ☐ UserController get by id request test
-    ☐ UserController put by id request test
-    ☐ UserController post request tests
-    ☐ UserController delete by id request tests
-    ☐ UserController regiser request tests
-    ☐ UserController login request tests
-    ☐ UserController logout
+    ✔ UserController get all request test @done(25-03-27 15:57)
+    ✔ UserController get by id request test @done(25-03-27 15:57)
+    ✔ UserController put by id request test @done(25-03-27 15:57)
+    ✔ UserController post request tests @done(25-03-27 15:57)
+    ✔ UserController delete by id request tests @done(25-03-27 15:57)
+    ✔ UserController regiser request tests @done(25-03-27 15:57)
+    ✔ UserController login request tests @done(25-03-27 15:57)
+    ✔ UserController logout @done(25-03-27 15:57)

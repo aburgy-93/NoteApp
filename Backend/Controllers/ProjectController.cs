@@ -140,6 +140,72 @@ namespace Backend.Controllers
             return CreatedAtAction("GetProject", new { id = project.ProjectId }, projectResponse);
         }
 
+        [HttpGet("getProjectNoteCounts")]
+        public async Task<ActionResult> GetProjectNoteCounts()
+        {
+            // Group notes by projectId
+            var projectNoteCounts = await _context.Notes
+                .GroupBy(note => note.ProjectId)
+                .Select(group => new 
+                {
+                    ProjectId = group.Key,
+                    Count = group.Count()
+                }).ToListAsync();
+
+            // Group notes that do not have a projectId
+            var unassignedNoteCount = await _context.Notes
+                .Where(note => note.ProjectId == null)
+                .CountAsync();
+            
+            return Ok(new {
+                ProjectNoteCounts = projectNoteCounts,
+                UnassignedNoteCount = unassignedNoteCount
+            });
+        }
+
+        [HttpGet("getAttributeCounts")]
+        public async Task<ActionResult> GetAttributeCounts()
+        {
+            // Group the NoteAttributeJoin By AttributeId and count the occurrences
+            var attributeNoteCounts = await _context.NoteAttributes
+                .GroupBy(noteAttr => noteAttr.AttributeId)
+                .Select(group => new 
+                {
+                    AttributeId = group.Key,
+                    Count = group.Count()
+                })
+                .ToListAsync();
+
+            // Join the result with the Attributeentity to get the names
+            var attributeDetails = await _context.Attributes
+                .Where(attr => attributeNoteCounts
+                .Select(attr => attr.AttributeId)
+                .Contains(attr.AttributeId))
+                .ToListAsync();
+
+            // Combine the grouped counts with the attribute names
+            var result = attributeNoteCounts
+            .Join(attributeDetails, noteCount => noteCount.AttributeId, 
+                attribute => attribute.AttributeId, (noteCount, attribute) => new 
+            {
+                AttributeId = noteCount.AttributeId,
+                AttributeName = attribute.AttributeName,
+                Count = noteCount.Count
+            }).ToList();
+
+            // Count notes without any attributes
+            var unassignedNoteCount = await _context.Notes
+                .Where(note => !note.NoteAttributes
+                .Any()).CountAsync();
+
+            return Ok(new
+            {
+                AttributeNoteCounts = result,
+                UnassignedAttributeCount = unassignedNoteCount
+            });
+        }
+
+
         // DELETE: api/Project/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject(int id)
